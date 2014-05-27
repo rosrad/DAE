@@ -6,9 +6,9 @@ num1ch_tr=0;
 flist = fopen(['../listfiles/1ch/SimData_tr_for_1ch_A.lst']);
 filename = fgetl(flist);
 while ischar(filename)
-num1ch_tr=num1ch_tr+1;
-filenamelist_tr{num1ch_tr}=filename;
-filename=fgetl(flist);
+    num1ch_tr=num1ch_tr+1;
+    filenamelist_tr{num1ch_tr}=filename;
+    filename=fgetl(flist);
 end
 fclose(flist);
 
@@ -19,18 +19,18 @@ fprintf('calculate output now...\n');
 numdims = 351;
 
 for i = 1:num1ch_tr
-f=fopen(['../../ReleasePackage/reverb_tools_for_asr_ver2.0/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filenamelist_tr{i}],'r');
-nSamples = fread(f,1,'int','b')-8;
-load(['../data/train/total_environment',filenamelist_tr{i},'.mat']);
-data = D;
-data=[data ones(nSamples,1)];
-w1probs = 1./(1 + exp(-data*w1)); w1probs = [w1probs  ones(nSamples,1)];
-w2probs = w1probs*w2; w2probs = [w2probs  ones(nSamples,1)];
-w3probs = 1./(1 + exp(-w2probs*w3)); w3probs = [w3probs  ones(nSamples,1)];
-dataout = 1./(1+exp(-w3probs*w4));
-outputdata = [outputdata; dataout(:,313:351)];
-clear data;
-fclose(f);
+    f=fopen(['../../ReleasePackage/reverb_tools_for_asr_ver2.0/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filenamelist_tr{i}],'r');
+    nSamples = fread(f,1,'int','b')-8;
+    load(['../data/train/total_environment',filenamelist_tr{i},'.mat']);
+    data = D;
+    data=[data ones(nSamples,1)];
+    w1probs = 1./(1 + exp(-data*w1)); w1probs = [w1probs  ones(nSamples,1)];
+    w2probs = w1probs*w2; w2probs = [w2probs  ones(nSamples,1)];
+    w3probs = 1./(1 + exp(-w2probs*w3)); w3probs = [w3probs  ones(nSamples,1)];
+    dataout = 1./(1+exp(-w3probs*w4));
+    outputdata = [outputdata; dataout(:,313:351)];
+    clear data;
+    fclose(f);
 end;
 %%%%%%%%%%%%%%%%write data%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf('write data now...');
@@ -43,31 +43,31 @@ incurrect=0;
 flist = fopen(['../listfiles/1ch/SimData_tr_for_1ch_A.lst']);
 filename = fgetl(flist);
 while ischar(filename);
-f=fopen(['../../ReleasePackage/reverb_tools_for_asr_ver2.0/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filename],'r');%1ch far
+    f=fopen(['../../ReleasePackage/reverb_tools_for_asr_ver2.0/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filename],'r');%1ch far
 
-nSamples = fread(f,1,'int','b')-8;
-load(['../data/train/total_environment',filenamelist_tr{i},'.mat']);
-if nSamples~=size(D,1)
-disp(nSamples);
-disp(size(D,1));
-%pause;
-incurrect=incurrect+1;
-end
+    nSamples = fread(f,1,'int','b')-8;
+    load(['../data/train/total_environment',filenamelist_tr{i},'.mat']);
+    if nSamples~=size(D,1)
+        disp(nSamples);
+        disp(size(D,1));
+        %pause;
+        incurrect=incurrect+1;
+    end
 
-sampPeriod = fread(f,1,'int','b');
-sampSize = fread(f,1,'short','b');
-parmKind = fread(f,1,'short','b');
-D=fopen(['../../ReleasePackage/reverb_tools_for_asr_ver2.0/REVERBWSJCAM0/features_AUTO/MFCC_0_D_A_Z_CEPLIFTER_1',filename],'w');
-fwrite(D,nSamples,'int','b');
-fwrite(D,sampPeriod,'int','b');
-fwrite(D,sampSize,'short','b');
-fwrite(D,parmKind,'short','b');
-fwrite(D,output39dim(:,nowframe:nowframe+nSamples-1),'float32','b');
-nowframe=nowframe+nSamples;
-fclose(f);
-fclose(D);
-filename = fgetl(flist);
-i=i+1;
+    sampPeriod = fread(f,1,'int','b');
+    sampSize = fread(f,1,'short','b');
+    parmKind = fread(f,1,'short','b');
+    D=fopen(['../../ReleasePackage/reverb_tools_for_asr_ver2.0/REVERBWSJCAM0/features_AUTO/MFCC_0_D_A_Z_CEPLIFTER_1',filename],'w');
+    fwrite(D,nSamples,'int','b');
+    fwrite(D,sampPeriod,'int','b');
+    fwrite(D,sampSize,'short','b');
+    fwrite(D,parmKind,'short','b');
+    fwrite(D,output39dim(:,nowframe:nowframe+nSamples-1),'float32','b');
+    nowframe=nowframe+nSamples;
+    fclose(f);
+    fclose(D);
+    filename = fgetl(flist);
+    i=i+1;
 end
 
 fclose(flist);
