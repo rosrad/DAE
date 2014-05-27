@@ -16,15 +16,15 @@
 % Weights of the autoencoder are going to be saved in mnist_weights.mat
 % and trainig and test reconstruction errors in mnist_error.mat
 % You can also set maxepoch, default value is 200 as in our paper.  
-
+fg = conf()
 maxepoch=100;
 fprintf(1,'\nFine-tuning deep autoencoder by minimizing cross entropy error. \n');
 fprintf(1,'60 batches of 1000 cases each. \n');
 
-load weight/REVERB_challenge/it50_u1024/mnistweights_dim351;
+load fg.mnistweights;
 
-load batchdata/batchdata.mat;
-load batchdata/clean_batchdata.mat;
+load fg.batchdata;
+load fg.clean_batchdata;
 
 [numcases numdims numbatches]=size(batchdata);
 N=numcases; 
@@ -110,9 +110,9 @@ for epoch = 1:maxepoch
         %%%%%%%%%%%%%%% END OF CONJUGATE GRADIENT WITH 3 LINESEARCHES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     end
-    save weight/REVERB_challenge/it50_u1024/it100/mnist_weights_dim351 w1 w2 w3 w4 w5 w6 -v7.3;
+    save [fg.weight_dir,'/REVERB_challenge/it50_u1024/it100/mnist_weights_dim351'] w1 w2 w3 w4 w5 w6 -v7.3;
     if epoch==50
-        save weight/REVERB_challenge/it50_u1024/it50/mnist_weights_dim351_ep50 w1 w2 w3 w4 w5 w6 -v7.3;
+        save [fg.weight_dir, '/REVERB_challenge/it50_u1024/it50/mnist_weights_dim351_ep50'] w1 w2 w3 w4 w5 w6 -v7.3;
     end
 
 end

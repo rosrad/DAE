@@ -1,14 +1,20 @@
 %this a config file for DAE file
 function fg=conf()
-    fg.work_dir=''
-    fg.source_dir=''
-    fg.tmp_dir=''
-    fg.env = 'reverb_only'
-    fg.flist_dir= ''
+    fg.work_dir='/home/14/ren/work_q/DAE/work/';
+    fg.source_dir=[fg.work_dir, '/source/'];
+    fg.tmp_dir==[fg.work_dir, '/tmp/'];
+    fg.env = 'reverb_only';
+    fg.flist_dir=[fg.source_dir, '/flist/'];
     fg.train_list=[fg.flist_dir, '/1ch/SimData_tr_for_1ch_A.lst'];
     fg.clean_list=[fg.flist_dir, '/clean_train/si_tr.lst'];
-    fg.features_input_dir='';
-    fg.features_output_dir='';
-    fg.para_tmp=[fg.tmp_dir, 'para'];
-    fg.batchdata_dir=[fg.para_tmp, 'batchdata'];
+    fg.features_input_dir='/home/14/ren/work/data/reverb_task/telephone/tmp/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1/';
+    fg.features_output_dir='home/14/ren/work/data/reverb_task/telephone/tmp/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1/dae/';
+    fg.para=[fg.tmp_dir, '/para/'];
+    fg.batchdata_dir=[fg.para, '/batchdata/'];
+    fg.train_dir=[fg.para, '/train/'];
+    fg.batchdata=[fg.batchdata_dir, fg.env,'/batchdata.mat'];
+    fg.clean_batchdata=[fg.batchdata_dir, fg.env,'/clean_batchdata.mat'];
+    fg.train_clean_dir=[fg.para, '/train/clean/'];
+    fg.weight_dir = [fg.para, '/weight/'];
+    fg.mnistweights = [fg.weight_dir, 'REVERB_challenge/it50_u1024/mnistweights_dim351'];
 end

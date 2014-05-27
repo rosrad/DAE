@@ -1,9 +1,10 @@
 fprintf('a\n');
+fg = conf()
 %%%%%%%%%%%%%%%%set value%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 filenamelist_tr=cell(20000,1);
 num1ch_tr=0;
 
-flist = fopen(['../listfiles/1ch/SimData_tr_for_1ch_A.lst']);
+flist = fopen(fg.train_list);
 filename = fgetl(flist);
 while ischar(filename)
     num1ch_tr=num1ch_tr+1;
@@ -12,14 +13,14 @@ while ischar(filename)
 end
 fclose(flist);
 
-load weight/REVERB_challenge/it50_u1024/it100/mnist_weights_dim351.mat;
+load [fg.weight_dir, 'REVERB_challenge/it50_u1024/it100/mnist_weights_dim351.mat'];
 %%%%%%%%%%%%%%%%load data%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 outputdata=[];
 fprintf('calculate output now...\n');
 numdims = 351;
 
 for i = 1:num1ch_tr
-    f=fopen(['../../ReleasePackage/reverb_tools_for_asr_ver2.0/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filenamelist_tr{i}],'r');
+    f=fopen([fg.features_input_dir, filenamelist_tr{i}],'r');
     nSamples = fread(f,1,'int','b')-8;
     load(['../data/train/total_environment',filenamelist_tr{i},'.mat']);
     data = D;
@@ -40,13 +41,13 @@ output39dim([1:39],:)=outputdata';
 
 i=1;
 incurrect=0;
-flist = fopen(['../listfiles/1ch/SimData_tr_for_1ch_A.lst']);
+flist = fopen(fg.train_list);
 filename = fgetl(flist);
 while ischar(filename);
-    f=fopen(['../../ReleasePackage/reverb_tools_for_asr_ver2.0/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filename],'r');%1ch far
+    f=fopen([fg.features_input_dir,filename],'r');%1ch far
 
     nSamples = fread(f,1,'int','b')-8;
-    load(['../data/train/total_environment',filenamelist_tr{i},'.mat']);
+    load([fg.train_dir,filenamelist_tr{i},'.mat']);
     if nSamples~=size(D,1)
         disp(nSamples);
         disp(size(D,1));
@@ -57,7 +58,7 @@ while ischar(filename);
     sampPeriod = fread(f,1,'int','b');
     sampSize = fread(f,1,'short','b');
     parmKind = fread(f,1,'short','b');
-    D=fopen(['../../ReleasePackage/reverb_tools_for_asr_ver2.0/REVERBWSJCAM0/features_AUTO/MFCC_0_D_A_Z_CEPLIFTER_1',filename],'w');
+    D=fopen([fg.features_output_dir,filename],'w');
     fwrite(D,nSamples,'int','b');
     fwrite(D,sampPeriod,'int','b');
     fwrite(D,sampSize,'short','b');

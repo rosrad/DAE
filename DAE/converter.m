@@ -23,13 +23,14 @@
 % This program was originally written by Yee Whye Teh 
 
 % Work with test files first 
-env = 'reverb_only';
+fg = conf();
+env = fg.env;
 
 total_train=[];
 frame=1;
 i=1;
 fprintf('calculate average and variance of traindata now...\n'); 
-flist = fopen(['../listfiles/1ch/SimData_tr_for_1ch_A.lst']);                                                                                                                         
+flist = fopen(fg.train_list);                                                                                                                         
 filename = fgetl(flist);
 while ischar(filename);
     f=fopen([fg.base_dir,filename],'r');
@@ -56,7 +57,7 @@ filenamelist=cell(10266,1);
 
 fprintf('get filename now...\n');
 
-flist = fopen(['../listfiles/1ch/SimData_tr_for_1ch_A.lst']);
+flist = fopen(fg.train_list);
 filename = fgetl(flist);
 while ischar(filename)
     num_sp=num_sp+1;
@@ -73,7 +74,7 @@ fprintf('file set now...\n');
 Df1 = cell(1,num_sp);
 
 for i=1:num_sp
-    Df1{i} = fopen(['../data/train/',env,filenamelist{i},'.ascii'],'w');
+    Df1{i} = fopen([fg.train_dir,env,filenamelist{i},'.ascii'],'w');
 end;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -101,12 +102,12 @@ end
 fprintf('write data now...\n');
 
 for i=1:num_sp
-    D = load(['../data/train/',env,filenamelist{i},'.ascii'],'-ascii');
+    D = load([fg.train_dir,env,filenamelist{i},'.ascii'],'-ascii');
     fprintf('%5d Digits of class %d_%d\n',size(D,1),i,num_sp);
-    save(['../data/train/',env,filenamelist{i},'.mat'],'D','-mat');
+    save([fg.train_dir,env,filenamelist{i},'.mat'],'D','-mat');
 end;
 
 fprintf('delete ascii data\n');
-dos(['rm ../data/train/',env,'/mc_train/primary_microphone/si_tr/*/*.ascii']); 
+dos(['rm ',fg.train_dir,env,'/mc_train/primary_microphone/si_tr/*/*.ascii']); 
 
 end    

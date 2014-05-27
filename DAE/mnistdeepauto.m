@@ -26,7 +26,7 @@ numhid=1024; numpen=1024;
 fprintf(1,'Pretraining a deep autoencoder. \n');
 fprintf(1,'This uses %3i epochs \n', maxepoch);
 
-load ../batchdata/batchdata.mat;
+load fg.batchdata;
 
 [numcases numdims numbatches]=size(batchdata);
 
@@ -47,4 +47,4 @@ w2=[hidpen; penrecbiases];
 w3=[hidpen'; hidgenbiases];
 w4=[vispen'; visgenbiases];
 
-save weight/REVERB_challenge/it50_u1024/mnistweights_dim351 w1 w2 w3 w4 -v7.3;
+save fg.mnistweights w1 w2 w3 w4 -v7.3;

@@ -12,21 +12,22 @@
 % not been tested to the degree that would be advisable in any important
 % application.  All use of these programs is entirely at the user's own risk.
 
+fg = conf();
 digitdata=[];
 clean_digitdata=[];
-env = 'GSS_MSLP';
+env = fg.env;
 fprintf('load mctrain and clean now...\n'); 
-flist = fopen(['../listfiles/1ch/SimData_tr_for_1ch_A.lst']);
-flist_clean = fopen(['../listfiles/clean_train/si_tr.lst']); 
+flist = fopen(fg.train_list);
+flist_clean = fopen(fg.clean_list); 
 filename = fgetl(flist);
 filename_clean = fgetl(flist_clean);
 while ischar(filename)
-    load(['../data/train/',env,filename,'.mat']);
-    f=fopen(['../../ReleasePackage/reverb_tools_for_asr_ver2.0/WSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filename_clean],'r');
+    load([fg.train_dir, env,filename,'.mat']);
+    f=fopen([fg.features_input_dir, filename_clean],'r');
     nSamples = fread(f,1,'int','b');
     E=D(1:nSamples-8,:);
     digitdata = [digitdata; E];
-    load(['../data/train/clean',filename_clean,'.mat']);
+    load([fg.train_clean_dir,filename_clean,'.mat']);
     clean_digitdata = [clean_digitdata; D];
     filename=fgetl(flist);
     filename_clean = fgetl(flist_clean);
@@ -53,7 +54,7 @@ for b=1:numbatches
 end;
 
 fprintf('save mctrain batchdata now...\n');
-save('../batchdata/batchdata.mat', 'batchdata', '-v7.3');
+save(fg.batchdata, 'batchdata', '-v7.3');
 
 clear digitdata;
 clear batchdata;
@@ -74,7 +75,7 @@ for b=1:numbatches
 end;
 
 fprintf('save clean digitdata and batchdata now...\n');
-save('../batchdata/clean_batchdata.mat', 'clean_batchdata', '-v7.3');
+save(fg.clean_batchdata, 'clean_batchdata', '-v7.3');
 
 clear clean_digitdata; 
 clear clean_digitdata;
