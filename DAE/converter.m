@@ -24,26 +24,26 @@
 
 % Work with test files first 
 env = 'reverb_only';
-fg = conf()
+
 total_train=[];
 frame=1;
 i=1;
 fprintf('calculate average and variance of traindata now...\n'); 
-flist = fopen(fg.train_list);                                                                                                                         
+flist = fopen(['../listfiles/1ch/SimData_tr_for_1ch_A.lst']);                                                                                                                         
 filename = fgetl(flist);
 while ischar(filename);
-    f=fopen([fg.base_dir,filename],'r');
-    nSamples = fread(f,1,'int','b');
-    sampPeriod = fread(f,1,'int','b');
-    sampSize = fread(f,1,'short','b');
-    parmKind = fread(f,1,'short','b');
-    rawdata = fread(f,nSamples*(sampSize/4),'float','b');
-    rawdata = reshape(rawdata,sampSize/4,nSamples);
-    total_train(:,frame:frame+nSamples-1)=rawdata(:,:);
-    frame=frame+nSamples;
-    fclose(f);
-    i=i+1;
-    filename=fgetl(flist);
+f=fopen(['../../reverb_tools_for_asr/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filename],'r');
+nSamples = fread(f,1,'int','b');
+sampPeriod = fread(f,1,'int','b');
+sampSize = fread(f,1,'short','b');
+parmKind = fread(f,1,'short','b');
+rawdata = fread(f,nSamples*(sampSize/4),'float','b');
+rawdata = reshape(rawdata,sampSize/4,nSamples);
+total_train(:,frame:frame+nSamples-1)=rawdata(:,:);
+frame=frame+nSamples;
+fclose(f);
+i=i+1;
+filename=fgetl(flist);
 end;
 fclose(flist);
 
@@ -56,12 +56,12 @@ filenamelist=cell(10266,1);
 
 fprintf('get filename now...\n');
 
-flist = fopen([fg.train_list]);
+flist = fopen(['../listfiles/1ch/SimData_tr_for_1ch_A.lst']);
 filename = fgetl(flist);
 while ischar(filename)
-    num_sp=num_sp+1;
-    filenamelist{num_sp}=filename;
-    filename=fgetl(flist);
+num_sp=num_sp+1;
+filenamelist{num_sp}=filename;
+filename=fgetl(flist);
 end;
 fclose(flist);
 
@@ -73,37 +73,37 @@ fprintf('file set now...\n');
 Df1 = cell(1,num_sp);
 
 for i=1:num_sp
-    Df1{i} = fopen(['../data/train/',env,filenamelist{i},'.ascii'],'w');
+  Df1{i} = fopen(['../data/train/',env,filenamelist{i},'.ascii'],'w');
 end;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf('normalization now...\n');
 
 for i=1:num_sp
-    f=fopen([fg.base_dir,filenamelist{i}],'r');
-    nSamples = fread(f,1,'int','b');
-    sampPeriod = fread(f,1,'int','b');
-    sampSize = fread(f,1,'short','b');
-    parmKind = fread(f,1,'short','b');
-    rawdata = fread(f,nSamples*(sampSize/4),'float','b');
-    rawdata = reshape(rawdata,sampSize/4,nSamples);
-    rawdata=bsxfun(@rdivide,bsxfun(@minus,rawdata,ave),var);
-    rawdata=1./(1+exp(-rawdata));
-    for a=1:nSamples-8
-        fprintf(Df1{i},'%f ',rawdata([1:39],a:a+8));
-        fprintf(Df1{i},'\n');
-    end;
-    fclose(Df1{i});
-    fclose(f);
-    j=j+1;
+f=fopen(['/Work/shizuokau/ueda/reverb_tools_for_asr/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filenamelist{i}],'r');
+nSamples = fread(f,1,'int','b');
+sampPeriod = fread(f,1,'int','b');
+sampSize = fread(f,1,'short','b');
+parmKind = fread(f,1,'short','b');
+rawdata = fread(f,nSamples*(sampSize/4),'float','b');
+rawdata = reshape(rawdata,sampSize/4,nSamples);
+rawdata=bsxfun(@rdivide,bsxfun(@minus,rawdata,ave),var);
+rawdata=1./(1+exp(-rawdata));
+for a=1:nSamples-8
+fprintf(Df1{i},'%f ',rawdata([1:39],a:a+8));
+fprintf(Df1{i},'\n');
+end;
+fclose(Df1{i});
+fclose(f);
+j=j+1;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf('write data now...\n');
 
 for i=1:num_sp
-    D = load(['../data/train/',env,filenamelist{i},'.ascii'],'-ascii');
-    fprintf('%5d Digits of class %d_%d\n',size(D,1),i,num_sp);
-    save(['../data/train/',env,filenamelist{i},'.mat'],'D','-mat');
+D = load(['../data/train/',env,filenamelist{i},'.ascii'],'-ascii');
+  fprintf('%5d Digits of class %d_%d\n',size(D,1),i,num_sp);
+  save(['../data/train/',env,filenamelist{i},'.mat'],'D','-mat');
 end;
 
 fprintf('delete ascii data\n');
