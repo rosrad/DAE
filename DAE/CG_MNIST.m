@@ -23,20 +23,20 @@ l5= Dim(5);
 N = size(XX,1);
 
 % Do decomversion.
- w1 = reshape(VV(1:(l1+1)*l2),l1+1,l2);
- xxx = (l1+1)*l2;
- w2 = reshape(VV(xxx+1:xxx+(l2+1)*l3),l2+1,l3);
- xxx = xxx+(l2+1)*l3;
- w3 = reshape(VV(xxx+1:xxx+(l3+1)*l4),l3+1,l4);
- xxx = xxx+(l3+1)*l4;
- w4 = reshape(VV(xxx+1:xxx+(l4+1)*l5),l4+1,l5);
+w1 = reshape(VV(1:(l1+1)*l2),l1+1,l2);
+xxx = (l1+1)*l2;
+w2 = reshape(VV(xxx+1:xxx+(l2+1)*l3),l2+1,l3);
+xxx = xxx+(l2+1)*l3;
+w3 = reshape(VV(xxx+1:xxx+(l3+1)*l4),l3+1,l4);
+xxx = xxx+(l3+1)*l4;
+w4 = reshape(VV(xxx+1:xxx+(l4+1)*l5),l4+1,l5);
 
-  XX = [XX ones(N,1)];
-  YY = [YY ones(N,1)];
-  w1probs = 1./(1 + exp(-XX*w1)); w1probs = [w1probs  ones(N,1)];
-  w2probs = w1probs*w2; w2probs = [w2probs  ones(N,1)];
-  w3probs = 1./(1 + exp(-w2probs*w3)); w3probs = [w3probs  ones(N,1)];
-  XXout = 1./(1 + exp(-w3probs*w4));
+XX = [XX ones(N,1)];
+YY = [YY ones(N,1)];
+w1probs = 1./(1 + exp(-XX*w1)); w1probs = [w1probs  ones(N,1)];
+w2probs = w1probs*w2; w2probs = [w2probs  ones(N,1)];
+w3probs = 1./(1 + exp(-w2probs*w3)); w3probs = [w3probs  ones(N,1)];
+XXout = 1./(1 + exp(-w3probs*w4));
 
 f = -1/N*sum(sum( YY(:,1:end-1).*log(XXout) + (1-YY(:,1:end-1)).*log(1-XXout)));
 %f=1/N*sum(sum(XX(:,1:end-1)-XXout)).^2;

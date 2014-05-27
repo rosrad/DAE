@@ -15,22 +15,23 @@
 digitdata=[];
 clean_digitdata=[];
 env = 'GSS_MSLP';
+fg = conf()
 fprintf('load mctrain and clean now...\n'); 
-flist = fopen(['../listfiles/1ch/SimData_tr_for_1ch_A.lst']);
-flist_clean = fopen(['../listfiles/clean_train/si_tr.lst']); 
+flist = fopen(fg.train_list);
+flist_clean = fopen(fg.clean_list); 
 filename = fgetl(flist);
 filename_clean = fgetl(flist_clean);
 while ischar(filename)
-load(['../data/train/',env,filename,'.mat']);
-f=fopen(['../../ReleasePackage/reverb_tools_for_asr_ver2.0/WSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filename_clean],'r');
-nSamples = fread(f,1,'int','b');
-E=D(1:nSamples-8,:);
-digitdata = [digitdata; E];
-load(['../data/train/clean',filename_clean,'.mat']);
-clean_digitdata = [clean_digitdata; D];
-filename=fgetl(flist);
-filename_clean = fgetl(flist_clean);
-fclose(f);
+    load(['../data/train/',env,filename,'.mat']);
+    f=fopen([fg.base_dir,filename_clean],'r');
+    nSamples = fread(f,1,'int','b');
+    E=D(1:nSamples-8,:);
+    digitdata = [digitdata; E];
+    load(['../data/train/clean',filename_clean,'.mat']);
+    clean_digitdata = [clean_digitdata; D];
+    filename=fgetl(flist);
+    filename_clean = fgetl(flist_clean);
+    fclose(f);
 end
 fclose(flist);
 fclose(flist_clean);
@@ -49,7 +50,7 @@ disp(numdims);
 batchdata = zeros(batchsize, numdims, numbatches);
 
 for b=1:numbatches
-batchdata(:,:,b) = digitdata(randomorder(1+(b-1)*batchsize:b*batchsize), :);
+    batchdata(:,:,b) = digitdata(randomorder(1+(b-1)*batchsize:b*batchsize), :);
 end;
 
 fprintf('save mctrain batchdata now...\n');
@@ -70,7 +71,7 @@ disp(numdims);
 clean_batchdata = zeros(batchsize, numdims, numbatches);
 
 for b=1:numbatches
-clean_batchdata(:,:,b) = clean_digitdata(randomorder(1+(b-1)*batchsize:b*batchsize), :);
+    clean_batchdata(:,:,b) = clean_digitdata(randomorder(1+(b-1)*batchsize:b*batchsize), :);
 end;
 
 fprintf('save clean digitdata and batchdata now...\n');
