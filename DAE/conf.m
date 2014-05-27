@@ -2,7 +2,7 @@
 function fg=conf()
     fg.work_dir='/home/14/ren/work_q/DAE/work/';
     fg.source_dir=[fg.work_dir, '/source/'];
-    fg.tmp_dir==[fg.work_dir, '/tmp/'];
+    fg.tmp_dir=[fg.work_dir, '/tmp/'];
     fg.env = 'reverb_only';
     fg.flist_dir=[fg.source_dir, '/flist/'];
     fg.train_list=[fg.flist_dir, '/1ch/SimData_tr_for_1ch_A.lst'];

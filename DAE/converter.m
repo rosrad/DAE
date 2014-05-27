@@ -33,7 +33,7 @@ fprintf('calculate average and variance of traindata now...\n');
 flist = fopen(fg.train_list);                                                                                                                         
 filename = fgetl(flist);
 while ischar(filename);
-    f=fopen([fg.base_dir,filename],'r');
+    f=fopen([fg.features_input_dir,filename],'r');
     nSamples = fread(f,1,'int','b');
     sampPeriod = fread(f,1,'int','b');
     sampSize = fread(f,1,'short','b');
@@ -109,5 +109,3 @@ end;
 
 fprintf('delete ascii data\n');
 dos(['rm ',fg.train_dir,env,'/mc_train/primary_microphone/si_tr/*/*.ascii']); 
-
-end    
