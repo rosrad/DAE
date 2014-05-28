@@ -67,15 +67,25 @@ end;
 fclose(flist);
 
 fprintf('total file');
-disp(num1ch);
+disp(num_sp);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf('file set now...\n');
 Df1 = cell(1,num_sp);
 
 for i=1:num_sp
-    Df1{i} = fopen([fg.train_dir,env,filenamelist{i},'.ascii'],'w');
-end;
+    %TODO
+    %make the this more easier    
+    file_cl={fg.train_dir,env,filenamelist{i},'.ascii'};
+    file = strjoin(file_cl,'');
+    parts = strsplit(file, '/');
+    dir = strjoin({parts{1:end-1}}, '/')
+    system(sprintf('mkdir -p %s', dir))
+    Df1{i} = fopen(file,'w+');
+    if (Df1{i} <= 0)
+        disp(sprintf('Error Read File : %s', file));
+    end
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf('normalization now...\n');
@@ -96,7 +106,6 @@ for i=1:num_sp
     end;
     fclose(Df1{i});
     fclose(f);
-    j=j+1;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf('write data now...\n');
