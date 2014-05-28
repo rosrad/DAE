@@ -21,10 +21,10 @@ maxepoch=100;
 fprintf(1,'\nFine-tuning deep autoencoder by minimizing cross entropy error. \n');
 fprintf(1,'60 batches of 1000 cases each. \n');
 
-load fg.mnistweights;
+load(fg.mnistweights);
 
-load fg.batchdata;
-load fg.clean_batchdata;
+load(fg.batchdata);
+load(fg.clean_batchdata);
 
 [numcases numdims numbatches]=size(batchdata);
 N=numcases; 
@@ -35,9 +35,7 @@ l1=size(w1,1)-1;
 l2=size(w2,1)-1;
 l3=size(w3,1)-1;
 l4=size(w4,1)-1;
-l5=size(w5,1)-1;
-l6=size(w6,1)-1;
-l7=l1; 
+l5=l1; 
 test_err=[];
 train_err=[];
 
@@ -110,9 +108,9 @@ for epoch = 1:maxepoch
         %%%%%%%%%%%%%%% END OF CONJUGATE GRADIENT WITH 3 LINESEARCHES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     end
-    save [fg.weight_dir,'/REVERB_challenge/it50_u1024/it100/mnist_weights_dim351'] w1 w2 w3 w4 w5 w6 -v7.3;
+    save([fg.weight_dir, '/REVERB_challenge/it50_u1024/it100/mnist_weights_dim351'], 'w1', 'w2', 'w3', 'w4', '-v7.3');
     if epoch==50
-        save [fg.weight_dir, '/REVERB_challenge/it50_u1024/it50/mnist_weights_dim351_ep50'] w1 w2 w3 w4 w5 w6 -v7.3;
+        save([fg.weight_dir, '/REVERB_challenge/it50_u1024/it50/mnist_weights_dim351_ep50'], 'w1', 'w2', 'w3', 'w4', '-v7.3');
     end
 
 end

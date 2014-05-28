@@ -12,13 +12,13 @@ function fg=conf()
     fg.para=[fg.tmp_dir, '/para/'];
     fg.batchdata_dir=[fg.para, '/batchdata/'];
     fg.train_dir=[fg.para, '/train/'];
-    fg.batchdata=[fg.batchdata_dir, fg.env,'/batchdata.mat'];
-    fg.clean_batchdata=[fg.batchdata_dir, fg.env,'/clean_batchdata.mat'];
+    fg.batchdata_env_dir=[fg.batchdata_dir, fg.env];
+    fg.batchdata=[fg.batchdata_env_dir,'/batchdata.mat'];
+    fg.clean_batchdata=[fg.batchdata_env_dir,'/clean_batchdata.mat'];
     fg.train_clean_dir=[fg.para, '/train/clean/'];
     fg.weight_dir = [fg.para, '/weight/'];
     fg.mnistweights = [fg.weight_dir, 'REVERB_challenge/it50_u1024/mnistweights_dim351'];
-    dirs = {fg.flist_dir, fg.train_dir, fg.batchdata_dir, ...
-            fg.clean_batchdata, fg.weight_dir, fg.mnistweights};
+    dirs = {fg.flist_dir, fg.train_dir, fg.batchdata_env_dir, fg.weight_dir};
     for dir=dirs
         system(sprintf('mkdir  -p %s', dir{:}));
     end
