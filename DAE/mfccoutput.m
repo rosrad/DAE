@@ -13,7 +13,7 @@ while ischar(filename)
 end
 fclose(flist);
 
-load [fg.weight_dir, 'REVERB_challenge/it50_u1024/it100/mnist_weights_dim351.mat'];
+load ([fg.weight_dir, 'REVERB_challenge/it50_u1024/it100/mnist_weights_dim351.mat']);
 %%%%%%%%%%%%%%%%load data%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 outputdata=[];
 fprintf('calculate output now...\n');
@@ -22,7 +22,7 @@ numdims = 351;
 for i = 1:num1ch_tr
     f=fopen([fg.features_input_dir, filenamelist_tr{i}],'r');
     nSamples = fread(f,1,'int','b')-8;
-    load(['../data/train/total_environment',filenamelist_tr{i},'.mat']);
+    load([fg.env_train_dir,filenamelist_tr{i},'.mat']);
     data = D;
     data=[data ones(nSamples,1)];
     w1probs = 1./(1 + exp(-data*w1)); w1probs = [w1probs  ones(nSamples,1)];
@@ -44,10 +44,11 @@ incurrect=0;
 flist = fopen(fg.train_list);
 filename = fgetl(flist);
 while ischar(filename);
-    f=fopen([fg.features_input_dir,filename],'r');%1ch far
-
+    disp(filename);
+    [f,msg]=fopen([fg.features_input_dir,filename],'r');
+    disp(msg);
     nSamples = fread(f,1,'int','b')-8;
-    load([fg.train_dir,filenamelist_tr{i},'.mat']);
+    load([fg.env_train_dir,filenamelist_tr{i},'.mat']);
     if nSamples~=size(D,1)
         disp(nSamples);
         disp(size(D,1));
@@ -58,7 +59,14 @@ while ischar(filename);
     sampPeriod = fread(f,1,'int','b');
     sampSize = fread(f,1,'short','b');
     parmKind = fread(f,1,'short','b');
-    D=fopen([fg.features_output_dir,filename],'w');
+    % type make the parent directories
+    file = strjoin({fg.features_output_dir,filename}, '');
+    disp(file);
+    parts=strsplit(file,'/');
+    dir = strjoin({parts{1:end-1}}, '/');
+    system(sprintf('mkdir -p %s', dir));
+    D=fopen(file,'w');
+    
     fwrite(D,nSamples,'int','b');
     fwrite(D,sampPeriod,'int','b');
     fwrite(D,sampSize,'short','b');

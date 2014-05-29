@@ -69,43 +69,30 @@ fclose(flist);
 fprintf('total file');
 disp(num_sp);
 
+fprintf('normalization now...\n');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-fprintf('file set now...\n');
-Df1 = cell(1,num_sp);
 
 for i=1:num_sp
     %TODO
-    %make the this more easier    
-    file_cl={fg.train_dir,env,filenamelist{i},'.ascii'};
-    file = strjoin(file_cl,'');
-    parts = strsplit(file, '/');
-    dir = strjoin({parts{1:end-1}}, '/')
-    system(sprintf('mkdir -p %s', dir))
-    Df1{i} = fopen(file,'w+');
-    if (Df1{i} <= 0)
+    asci_wf = fopen([fg.train_dir,env,filenamelist{i},'.ascii'],'w');
+    if (asci_wf <= 0)
         disp(sprintf('Error Read File : %s', file));
     end
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-fprintf('normalization now...\n');
-
-for i=1:num_sp
-    f=fopen(['/Work/shizuokau/ueda/reverb_tools_for_asr/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filenamelist{i}],'r');
-    nSamples = fread(f,1,'int','b');
-    sampPeriod = fread(f,1,'int','b');
-    sampSize = fread(f,1,'short','b');
-    parmKind = fread(f,1,'short','b');
-    rawdata = fread(f,nSamples*(sampSize/4),'float','b');
+    mfc_rf=fopen(['/Work/shizuokau/ueda/reverb_tools_for_asr/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filenamelist{i}],'r');
+    nSamples = fread(mfc_rf,1,'int','b');
+    sampPeriod = fread(mfc_rf,1,'int','b');
+    sampSize = fread(mfc_rf,1,'short','b');
+    parmKind = fread(mfc_rf,1,'short','b');
+    rawdata = fread(mfc_rf,nSamples*(sampSize/4),'float','b');
     rawdata = reshape(rawdata,sampSize/4,nSamples);
     rawdata=bsxfun(@rdivide,bsxfun(@minus,rawdata,ave),var);
     rawdata=1./(1+exp(-rawdata));
     for a=1:nSamples-8
-        fprintf(Df1{i},'%f ',rawdata([1:39],a:a+8));
-        fprintf(Df1{i},'\n');
+        fprintf(asci_wf,'%f ',rawdata([1:39],a:a+8));
+        fprintf(asci_wf,'\n');
     end;
-    fclose(Df1{i});
-    fclose(f);
+    fclose(asci_wf);
+    fclose(mfc_rf);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf('write data now...\n');
