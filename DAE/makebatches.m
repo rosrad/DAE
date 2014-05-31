@@ -21,17 +21,23 @@ flist = fopen(fg.train_list);
 flist_clean = fopen(fg.clean_list); 
 filename = fgetl(flist);
 filename_clean = fgetl(flist_clean);
+index=0
 while ischar(filename)
     load([fg.train_dir, env,filename,'.mat']);
     f=fopen([fg.features_input_dir, filename_clean],'r');
     nSamples = fread(f,1,'int','b');
+    fclose(f);
     E=D(1:nSamples-8,:);
     digitdata = [digitdata; E];
     load([fg.train_clean_dir,filename_clean,'.mat']);
     clean_digitdata = [clean_digitdata; D];
     filename=fgetl(flist);
     filename_clean = fgetl(flist_clean);
-    fclose(f);
+    index=index+1;
+    if (mod(index,100) == 0)
+        fprintf('\n %d ', index);
+    end
+    fprintf('.');
 end
 fclose(flist);
 fclose(flist_clean);
