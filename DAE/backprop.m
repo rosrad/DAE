@@ -39,39 +39,23 @@ l5=l1;
 test_err=[];
 train_err=[];
 
+W1=gpuArray(w1);
+W2=gpuArray(w2);
+W3=gpuArray(w3);
+W4=gpuArray(w4);
+
 for epoch = 1:maxepoch
 
     %%%%%%%%%%%%%%%%%%%% COMPUTE TRAINING RECONSTRUCTION ERROR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    err=0; 
-    [numcases numdims numbatches]=size(batchdata);
-    N=numcases;
-    for batch = 1:numbatches
-        data = [batchdata(:,:,batch)];
-        data = [data ones(N,1)];
-        w1probs = 1./(1 + exp(-data*w1)); w1probs = [w1probs  ones(N,1)];
-        w2probs = w1probs*w2; w2probs = [w2probs  ones(N,1)];
-        w3probs = 1./(1 + exp(-w2probs*w3)); w3probs = [w3probs  ones(N,1)];
-        dataout = 1./(1 + exp(-w3probs*w4));
-        err= err +  1/N*sum(sum( (data(:,1:end-1)-dataout).^2 )); 
-    end
-    train_err(epoch)=err/numbatches;
 
+    [t_err]=calcprop_g(batchdata,W1,W2,W3,W4);
+    train_err(epoch)=gather(t_err);
     %%%%%%%%%%%%%%%%%%%% COMPUTE TEST RECONSTRUCTION ERROR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    [testnumcases testnumdims testnumbatches]=size(clean_batchdata);
-    N=testnumcases;
-    err=0;
-    for batch = 1:testnumbatches
-        data = [clean_batchdata(:,:,batch)];
-        data = [data ones(N,1)];
-        w1probs = 1./(1 + exp(-data*w1)); w1probs = [w1probs  ones(N,1)];
-        w2probs = w1probs*w2; w2probs = [w2probs  ones(N,1)];
-        w3probs = 1./(1 + exp(-w2probs*w3)); w3probs = [w3probs  ones(N,1)];
-        dataout = 1./(1 + exp(-w3probs*w4));
-        err = err +  1/N*sum(sum( (data(:,1:end-1)-dataout).^2 ));
-    end
-    test_err(epoch)=err/testnumbatches;
+    [t_err]=calcprop_g(clean_batchdata,W1,W2,W3,W4);
+    test_err(epoch)=gather(t_err);
+    
+    
     fprintf(1,'Before epoch %d Train squared error: %6.3f Test squared error: %6.3f \t \t \n',epoch,train_err(epoch),test_err(epoch));
-
     %%%%%%%%%%%%%% END OF COMPUTING TEST RECONSTRUCTION ERROR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     tt=0;
@@ -92,11 +76,15 @@ for epoch = 1:maxepoch
         %%%%%%%%%%%%%%% PERFORM CONJUGATE GRADIENT WITH 3 LINESEARCHES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         max_iter=3;
-        VV = [w1(:)' w2(:)' w3(:)' w4(:)']';
+        VV = gpuArray([w1(:)' w2(:)' w3(:)' w4(:)']');
         Dim = [l1; l2; l3; l4; l5;];
-
-        [X, fX] = minimize(VV,'CG_MNIST',max_iter,Dim,data,data_test);
-
+        
+        A = gpuArray(data);
+        B = gpuArray(data_test);
+        [X2, fX2] = minimize(VV,'CG_MNIST',max_iter,Dim,A,B);
+        X = gather(X2);
+        fX = gather(fX2); 
+        
         w1 = reshape(X(1:(l1+1)*l2),l1+1,l2);
         xxx = (l1+1)*l2;
         w2 = reshape(X(xxx+1:xxx+(l2+1)*l3),l2+1,l3);
