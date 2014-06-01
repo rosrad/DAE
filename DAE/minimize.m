@@ -102,7 +102,7 @@ while i < abs(length)                                      % while not finished
         x2 = x3; f2 = f3; d2 = d3; df2 = df3;             % move point 3 to point 2
         A = 6*(f1-f2)+3*(d2+d1)*(x2-x1);                 % make cubic extrapolation
         B = 3*(f2-f1)-(2*d1+d2)*(x2-x1);
-        x3 = x1-d1*(x2-x1)^2/(B+sqrt(B*B-A*d1*(x2-x1))); % num. error possible, ok!
+        x3 = x1-d1*(x2-x1)^2/(B+sqrt(complex(B*B-A*d1*(x2-x1)))); % num. error possible, ok!
         if ~isreal(x3) | isnan(x3) | isinf(x3) | x3 < 0   % num prob or wrong sign?
             x3 = x2*EXT;                                 % extrapolate maximum amount
         elseif x3 > x2*EXT                  % new point beyond extrapolation limit?
