@@ -1,12 +1,8 @@
-%this is a new make batch filename
 function makebatch()
-    make_randlist();
-end
-    
-function make_randlist()
+%this is a new make batch filename
 %% caculate the sum of all samples from the filelist
     fg = conf();
-    filelist = fg.test_list;
+    filelist = fg.train_list;
     disp(filelist);
     fid = fopen(filelist);
     if (fid == -1)
@@ -46,7 +42,7 @@ function make_randlist()
             end
         end
     end
-    save('batch_list', 'sample_list');
+    save(sample_list, 'sample_list');
 end
 
 function n = read_num(filename)
