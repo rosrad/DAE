@@ -22,12 +22,9 @@ fprintf(1,'\nFine-tuning deep autoencoder by minimizing cross entropy error. \n'
 fprintf(1,'60 batches of 1000 cases each. \n');
 
 load(fg.mnistweights);
-
-load(fg.batchdata);
-load(fg.clean_batchdata);
-
-[numcases numdims numbatches]=size(batchdata);
-N=numcases; 
+train_data = readbatches('test');
+clean_data = readbatches('test');
+[numcases numdims numbatches]=batch_define('test');
 
 %%%%%%%%%% END OF PREINITIALIZATIO OF WEIGHTS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -39,19 +36,20 @@ l5=l1;
 test_err=[];
 train_err=[];
 
-W1=gpuArray(w1);
-W2=gpuArray(w2);
-W3=gpuArray(w3);
-W4=gpuArray(w4);
 
 for epoch = 1:maxepoch
+    
+    W1=gpuArray(w1);
+    W2=gpuArray(w2);
+    W3=gpuArray(w3);
+    W4=gpuArray(w4);
 
     %%%%%%%%%%%%%%%%%%%% COMPUTE TRAINING RECONSTRUCTION ERROR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    [t_err]=calcprop_g(batchdata,W1,W2,W3,W4);
+    [t_err]=calcprop_g(train_data,W1,W2,W3,W4);
     train_err(epoch)=gather(t_err);
     %%%%%%%%%%%%%%%%%%%% COMPUTE TEST RECONSTRUCTION ERROR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    [t_err]=calcprop_g(clean_batchdata,W1,W2,W3,W4);
+    [t_err]=calcprop_g(clean_data,W1,W2,W3,W4);
     test_err(epoch)=gather(t_err);
     
     
@@ -67,12 +65,10 @@ for epoch = 1:maxepoch
         data=[];
         data_test=[];
         for kk=1:10
-            data=[data 
-                  batchdata(:,:,(tt-1)*10+kk)]; 
-            data_test=[data_test
-                       clean_batchdata(:,:,(tt-1)*10+kk)];
+            data=[data train_data(:,:,(tt-1)*10+kk)]; 
+            data_test=[data_test clean_data(:,:,(tt-1)*10+kk)];
         end 
-
+        
         %%%%%%%%%%%%%%% PERFORM CONJUGATE GRADIENT WITH 3 LINESEARCHES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         max_iter=3;
