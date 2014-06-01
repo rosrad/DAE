@@ -1,6 +1,6 @@
 %this is a new make batch filename
 function makebatch()
-    
+    make_randlist();
 end
     
 function make_randlist()
@@ -21,46 +21,37 @@ function make_randlist()
         if ~ischar(filename)
             break;
         end
-        file_path = [fg.features_input_dir, filename];
-        nSamples = read_samples(file_path);
+        disp(sprintf('Map File :%s\n',filename));
+        cap = read_num(filename);
         index = index+1;
-        cap = nSamples-8;
         sum = sum+cap;
-        sample_map{index,1} = sum
-        sample_map{index,2} = file_path
-        sample_map{index,3} = cap
-    
+        sample_map{index,1} = sum;
+        sample_map{index,2} = filename;
+        sample_map{index,3} = cap;
     end
     fclose(fid);
     %% make the batch map
     rand('state',0);
-    randlist = randperm(sum)
-    batchsize = 256;
-    batches = sum/batchsize;
-    sample_finder = {};
+    randlist = randperm(sum);
+    sample_list = {};
     
     for n = 1:length(randlist)
-    
         for idx = 1:length(sample_map)
             num = randlist(n);
             if num <= sample_map{idx,1} 
-                sample_finder{n,1}=sample_map{idx,2}; %the features file
-                sample_finder{n,2}=sample_map{idx,3} + num - sample_map{idx,1}; % offset in
+                sample_list{n,1}=sample_map{idx,2}; %the features file
+                sample_list{n,2}=sample_map{idx,3} + num - sample_map{idx,1}; % offset in
+                disp(sprintf('Batch No %d  Offset : %d ,File: %s\n', num,sample_list{n,2},sample_list{n,1}));
                 break;
             end
         end
     end
-    
-    %save('batchlist', 'sample_finder');
+    save('batch_list', 'sample_list');
 end
 
-function n = read_samples(features_file)
-    f=fopen(features_file,'r');
-    n=0;
-    if f <= 0
-        disp(['Error while read sample number ==> file: ', features_file]);
-        return;
-    end
-    n = fread(f,1,'int','b');
-    fclose(f);
+function n = read_num(filename)
+    fg = conf();
+    file_path = [fg.env_train_dir, filename, '.mat'];
+    load(file_path);
+    n = size(D, 1);
 end
