@@ -1,8 +1,8 @@
-function[t_err]=calcprop_g(data, w1,w2,w3,w4);   
+function[t_err]=calcprop_g(batchdata, w1,w2,w3,w4);   
     err=0; 
-    [numcases numdims numbatches]=(data);
+    [numcases numdims numbatches]=size(batchdata);
     for idx = 1:numbatches
-        data = gpuArray(data[:,:,idx]);
+        data = gpuArray([batchdata(:,:,idx)]);
         data = [data ones(numcases,1)];
         w1probs = 1./(1 + exp(-data*w1)); w1probs = [w1probs  ones(numcases,1)];
         w2probs = w1probs*w2; w2probs = [w2probs  ones(numcases,1)];
