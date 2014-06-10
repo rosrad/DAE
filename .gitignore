@@ -2,3 +2,4 @@ work
 *.mat
 .#*
 gpu
+conf.ini.*
