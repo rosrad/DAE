@@ -1,10 +1,10 @@
 fprintf('a\n');
-fg = conf()
+ini = ini2struct('conf.ini');
 %%%%%%%%%%%%%%%%set value%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 filenamelist_tr=cell(20000,1);
 num1ch_tr=0;
 
-flist = fopen(fg.train_list);
+flist = fopen(ini.input.train_list);
 filename = fgetl(flist);
 while ischar(filename)
     num1ch_tr=num1ch_tr+1;
@@ -13,16 +13,16 @@ while ischar(filename)
 end
 fclose(flist);
 
-load ([fg.weight_dir, 'REVERB_challenge/it50_u1024/it100/mnist_weights_dim351.mat']);
+load(ini.input.weight);
 %%%%%%%%%%%%%%%%load data%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 outputdata=[];
 fprintf('calculate output now...\n');
 numdims = 351;
 
 for i = 1:num1ch_tr
-    f=fopen([fg.features_input_dir, filenamelist_tr{i}],'r');
+    f=fopen([ini.input.feature_dir, filenamelist_tr{i}],'r');
     nSamples = fread(f,1,'int','b')-8;
-    load([fg.env_train_dir,filenamelist_tr{i},'.mat']);
+    load([ini.input.env_train_dir,filenamelist_tr{i},'.mat']);
     data = D;
     data=[data ones(nSamples,1)];
     w1probs = 1./(1 + exp(-data*w1)); w1probs = [w1probs  ones(nSamples,1)];
@@ -41,14 +41,14 @@ output39dim([1:39],:)=outputdata';
 
 i=1;
 incurrect=0;
-flist = fopen(fg.train_list);
+flist = fopen(ini.input.train_list);
 filename = fgetl(flist);
 while ischar(filename);
     disp(filename);
-    [f,msg]=fopen([fg.features_input_dir,filename],'r');
+    [f,msg]=fopen([ini.input.feature_dir,filename],'r');
     disp(msg);
     nSamples = fread(f,1,'int','b')-8;
-    load([fg.env_train_dir,filenamelist_tr{i},'.mat']);
+    load([ini.input.env_train_dir,filenamelist_tr{i},'.mat']);
     if nSamples~=size(D,1)
         disp(nSamples);
         disp(size(D,1));
@@ -60,7 +60,7 @@ while ischar(filename);
     sampSize = fread(f,1,'short','b');
     parmKind = fread(f,1,'short','b');
     % type make the parent directories
-    file = strjoin({fg.features_output_dir,filename}, '');
+    file = strjoin({ini.output.dae_feature,filename}, '');
     disp(file);
     parts=strsplit(file,'/');
     dir = strjoin({parts{1:end-1}}, '/');
