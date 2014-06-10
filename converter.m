@@ -24,10 +24,13 @@
 
 % Work with test files first 
 
-function converter()
-    INI = ini2struct('conf.ini');
+function converter(inf)
+    if (nargin<1)
+        inf = 'conf.ini.0';
+    end
+    INI = ini2struct(inf);
     % get file list
-    list = filelist(INI.in.testlist, INI.in.feature_dir);
+    list = filelist(INI.in.list, INI.in.feature_dir);
     if length(list)==0
         disp_err('List file', '');
     end

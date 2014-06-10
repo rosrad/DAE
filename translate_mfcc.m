@@ -1,28 +1,30 @@
 function translate_mfcc()
 %this is the function that used for translate the original mfcc
 %feature files using the DAE algorithm
-    ini = ini2struct('conf.ini');
-    list = filelist(ini.in.testlist, ini.in.data_dir, 'mat');
-    translate(list, ini.out.feature_dir)
+    if (nargin<1)
+        inf = 'conf.ini.0'
+    end
+    INI = ini2struct(inf);
+    list = filelist(INI.in.list, INI.in.data_dir, 'mat');
+    translate(list, INI.out.dae_dir)
 end
 
-function translate(list, out_basedir)
+function translate(list, ini)
     for idx = 1:length(list)
         load(list{idx}.fullpath, 'D', 'ext');
-        outfile = strcat(out_basedir, '/', list{idx}.base);
+        outfile = strcat(ini.out.dae_dir, '/', list{idx}.base);
         check_basedir(outfile);
-        out = dae_calc(D,ext.nSamples - 8 );
+        out = dae_calc(D, ext.nSamples-8, ini.in.weight);
         % be careful , we neet transposition the out data from the dae.
         write_feature(outfile, ext, out');
     end
 end
 
-function out = dae_calc(in, nSamples)
+function out = dae_calc(in, nSamples, weight_file)
 %this algorithm is using the trained parameters to get a dae
 %disreverbed feature.
 % TODO need to make the weight more clear
-    ini = ini2struct('conf.ini');
-    load(ini.in.weight);             
+    load(weight_file);             
     data=[in ones(nSamples,1)];
     w1probs = 1./(1 + exp(-data*w1)); w1probs = [w1probs  ones(nSamples,1)];
     w2probs = w1probs*w2; w2probs = [w2probs  ones(nSamples,1)];
