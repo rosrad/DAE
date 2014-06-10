@@ -23,85 +23,96 @@
 % This program was originally written by Yee Whye Teh 
 
 % Work with test files first 
-fg = conf();
-env = fg.env;
 
-total_train=[];
-frame=1;
-i=1;
-fprintf('calculate average and variance of traindata now...\n'); 
-flist = fopen(fg.train_list);                                                                                                                         
-filename = fgetl(flist);
-while ischar(filename);
-    f=fopen([fg.features_input_dir,filename],'r');
-    nSamples = fread(f,1,'int','b');
-    sampPeriod = fread(f,1,'int','b');
-    sampSize = fread(f,1,'short','b');
-    parmKind = fread(f,1,'short','b');
-    rawdata = fread(f,nSamples*(sampSize/4),'float','b');
-    rawdata = reshape(rawdata,sampSize/4,nSamples);
-    total_train(:,frame:frame+nSamples-1)=rawdata(:,:);
-    frame=frame+nSamples;
-    fclose(f);
-    i=i+1;
-    filename=fgetl(flist);
-end;
-fclose(flist);
-
-ave=mean(total_train,2);
-var=std(total_train,0,2);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-num_sp=0;
-filenamelist=cell(10266,1);
-
-fprintf('get filename now...\n');
-
-flist = fopen(fg.train_list);
-filename = fgetl(flist);
-while ischar(filename)
-    num_sp=num_sp+1;
-    filenamelist{num_sp}=filename;
-    filename=fgetl(flist);
-end;
-fclose(flist);
-
-fprintf('total file');
-disp(num_sp);
-
-fprintf('normalization now...\n');
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-for i=1:num_sp
-    %TODO
-    asci_wf = fopen([fg.train_dir,env,filenamelist{i},'.ascii'],'w');
-    if (asci_wf <= 0)
-        disp(sprintf('Error Read File : %s', file));
+function converter()
+    INI = ini2struct('conf.ini');
+    % get file list
+    list = filelist(INI.input.testlist, INI.input.feature_dir);
+    if length(list)==0
+        disp_err('List file', '');
     end
-    mfc_rf=fopen(['/Work/shizuokau/ueda/reverb_tools_for_asr/REVERBWSJCAM0/features/MFCC_0_D_A_Z_CEPLIFTER_1',filenamelist{i}],'r');
-    nSamples = fread(mfc_rf,1,'int','b');
-    sampPeriod = fread(mfc_rf,1,'int','b');
-    sampSize = fread(mfc_rf,1,'short','b');
-    parmKind = fread(mfc_rf,1,'short','b');
-    rawdata = fread(mfc_rf,nSamples*(sampSize/4),'float','b');
-    rawdata = reshape(rawdata,sampSize/4,nSamples);
-    rawdata=bsxfun(@rdivide,bsxfun(@minus,rawdata,ave),var);
-    rawdata=1./(1+exp(-rawdata));
-    for a=1:nSamples-8
-        fprintf(asci_wf,'%f ',rawdata([1:39],a:a+8));
-        fprintf(asci_wf,'\n');
-    end;
-    fclose(asci_wf);
-    fclose(mfc_rf);
+    % get the samples from the file list
+    samples = data(list);
+    
+    [ave, var] = mean_var(samples);
+    %fprintf('Mean : %s , Var : %s \n', ave, var);
+    % normalization 
+    normalization(samples, ave, var);
 end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-fprintf('write data now...\n');
 
-for i=1:num_sp
-    D = load([fg.train_dir,env,filenamelist{i},'.ascii'],'-ascii');
-    fprintf('%5d Digits of class %d_%d\n',size(D,1),i,num_sp);
-    save([fg.train_dir,env,filenamelist{i},'.mat'],'D','-mat');
-end;
+function [ave, var] = mean_var(data)
+    % calculate the mean and varinace 
+    total = [];
+    for idx = 1:length(data)
+        total = [total,data{idx}.data];
+    end
+    ave=mean(total,2);
+    var=std(total,0,2);
+end
 
-fprintf('delete ascii data\n');
-dos(['rm ',fg.train_dir,env,'/mc_train/primary_microphone/si_tr/*/*.ascii']); 
+function normalization(data, ave, var)
+    disp('begin to normalization');
+    num_files = length(data);
+    %TODO make this more clear
+    for idx = 1:num_files
+        rawdata=bsxfun(@rdivide,bsxfun(@minus,data{idx}.data,ave),var);
+        rawdata=1./(1+exp(-rawdata));
+        D = [];
+        num_smples = size(data{idx}.data,2);
+        for smp_idx = 1:num_smples-8
+            %% fprintf(asci_wf,'%f ',rawdata([1:39],a:a+8))
+            joint_smaples = rawdata(1:39,smp_idx:smp_idx+8);
+            feature = joint_smaples(:);
+            D = [D;feature'];
+        end
+        fprintf('%5d Digits of class %d_%d\n',size(D,1),idx,num_files);
+        save([data{idx}.file,'.mat'],'D','-mat');
+        clear('D');
+    end
+end
+
+function list = filelist(file, basedir)
+    list = {};
+    fid = fopen(file);
+    if (fid == -1)
+        disp(fprintf('[Error] [Read FileList] %s', file));
+        return;
+    end
+    items = textscan(fid, '%s', 'delimiter', '\n');
+    subitems = items{1};
+    
+    for idx = 1:length(subitems)
+        list{end+1} = strcat(basedir, '/', subitems{idx});
+        %fprintf('%s\n', list{idx});
+    end
+    fclose(fid);
+end
+
+function disp_err(msg, ext)
+    type = 1;
+    msg_type = {'Warning', 'Dead'};
+    disp(sprintf('[%s] [%s] [%s]', msg_type{type}, msg, ext))
+end
+
+function samples = data (list)
+    samples = {};
+    for idx = 1:length(list)
+        fid =fopen(list{idx},'r');
+        if (fid == -1)
+            disp_err('ReadSample', list{idx});
+            continue;
+        end
+        nSamples = fread(fid,1,'int','b');
+        sampPeriod = fread(fid,1,'int','b');
+        sampSize = fread(fid,1,'short','b');
+        parmKind = fread(fid,1,'short','b');
+        rawdata = fread(fid,nSamples*(sampSize/4),'float','b');
+        rawdata = reshape(rawdata,sampSize/4,nSamples);
+        samples{end+1} = struct('file',list{idx}, 'data', rawdata);
+        fclose(fid);
+    end
+    if (length(list) ~= length(samples))
+        disp_err('Listed file missed!','');
+    end
+end
+
