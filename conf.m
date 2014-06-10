@@ -1,6 +1,6 @@
 %this a config file for DAE file
 function fg=conf()
-    fg.work_dir='/home/14/ren/work_q/DAE/work/';
+    fg.work_dir='/home/14/ren/exp/DAE/work/';
     fg.source_dir=[fg.work_dir, '/source/'];
     fg.tmp_dir=[fg.work_dir, '/tmp/'];
     fg.env = 'reverb_only';
