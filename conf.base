@@ -3,7 +3,7 @@ source=/home/14/ren/exp/DAE/work/source/
 tmp_data=/home/14/ren/exp/DAE/work/tmp/data/
 tmp_para=/home/14/ren/exp/DAE/work/tmp/para/weight/REVERB_challenge/
 target=/home/14/ren/exp/DAE/work/tmp/feature/dae/
-weight=/home/14/ren/exp/DAE/work/tmp/para/weight/REVERB_challenge/it50_u1024/it100/
+weight=/Work/shizuokau/ueda/autoencoder/dnn_lay3/weight/REVERB_challenge/it50_u1024/it100/
 feature_base=/home/14/ren/work/data/reverb_task/telephone/tmp/
 # all the below is relative path
 [IN]
