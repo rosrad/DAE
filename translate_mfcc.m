@@ -1,4 +1,4 @@
-function translate_mfcc()
+function translate_mfcc(inf)
 %this is the function that used for translate the original mfcc
 %feature files using the DAE algorithm
     if (nargin<1)
@@ -6,13 +6,14 @@ function translate_mfcc()
     end
     INI = ini2struct(inf);
     list = filelist(INI.in.list, INI.in.data_dir, 'mat');
-    translate(list, INI.out.dae_dir)
+    translate(list, INI)
 end
 
 function translate(list, ini)
     for idx = 1:length(list)
         load(list{idx}.fullpath, 'D', 'ext');
         outfile = strcat(ini.out.dae_dir, '/', list{idx}.base);
+        fprintf('[==>]%s\n',outfile)
         check_basedir(outfile);
         out = dae_calc(D, ext.nSamples-8, ini.in.weight);
         % be careful , we neet transposition the out data from the dae.
