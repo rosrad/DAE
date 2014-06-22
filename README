@@ -1,0 +1,8 @@
+please run as below
+
+converter.m                     #normalize the features
+makebatches.m                   #make batches for multi processing
+mnistdeepauto.m                 #just like the UBM ,this make a pre tuning (training)
+backprop.m                      #fine tuning the DAE model (training)
+translate_mfcc.m                #use the DAE model to extract clean sound
+
